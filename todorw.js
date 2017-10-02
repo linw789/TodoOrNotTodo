@@ -25,7 +25,7 @@ let TodoRWStatic = {
 
 let todorw = {};
 
-let _todorw_read = function() {
+function _todorw_read() {
     if (TodoRWStatic._localhost) {
         let and = new And(function(fulfill, reject) {
             fs.readFile(TodoRWStatic._todoJsonFilename, "utf8", function(err, data) {
@@ -64,7 +64,7 @@ let _todorw_read = function() {
     }
 }
 
-let _todorw_write = function(todosArray, passAlong) {
+function _todorw_write(todosArray, passAlong) {
     if (TodoRWStatic._localhost) {
         let and = new And(function(fulfill, reject) {
             fs.writeFile(TodoRWStatic._todoJsonFilename, JSON.stringify(todosArray), "utf8", function(err) {
@@ -102,7 +102,7 @@ let _todorw_write = function(todosArray, passAlong) {
  * @param {number} id
  * @return index or null
  */
-let _todorw_getById = function(todos, id) {
+function _todorw_getById(todos, id) {
     for (let i = 0; i < todos.length; ++i) {
         let todoItem = todos[i];
         if (todoItem["st"] === id) {
@@ -112,7 +112,7 @@ let _todorw_getById = function(todos, id) {
     return null;
 }
 
-let _todorw_stringToArray = function(todosStr) {
+function _todorw_stringToArray(todosStr) {
     let todosArray = [];
     if (todosStr !== "") {
         todosArray = JSON.parse(todosStr);
@@ -120,7 +120,7 @@ let _todorw_stringToArray = function(todosStr) {
     return todosArray;
 }
 
-let _todorw_changeStatus = function(todosArray, idStr, newStatus) {
+function _todorw_changeStatus(todosArray, idStr, newStatus) {
     let and = new And(function(fulfill, reject) {
         if (newStatus !== TD_DONE && newStatus !== TD_WONTDO) {
             let err = new Error("Invalid status to change");

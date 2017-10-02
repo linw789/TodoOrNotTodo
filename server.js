@@ -27,7 +27,7 @@ app.get("/favicon.ico", function(req, res) {
 app.get("/todoslist.json", function(req, res) {
     let and = todorw.readTodosList();
     and.done(function onFulfilled(todosStr) {
-        res.writeHead(200, {'Content-Type': 'application/json', 'Content-Length': todosStr.length});
+        res.writeHead(200, {'Content-Type': 'application/json'});
         res.write(todosStr);
         res.end();
     }, function onRejected(err) {

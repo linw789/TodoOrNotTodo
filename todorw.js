@@ -100,13 +100,13 @@ let _todorw_write = function(todosArray, passAlong) {
 /**
  * @param {Array} todos
  * @param {number} id
- * @return todo object or null
+ * @return index or null
  */
 let _todorw_getById = function(todos, id) {
     for (let i = 0; i < todos.length; ++i) {
         let todoItem = todos[i];
         if (todoItem["st"] === id) {
-            return {"todoItem": todoItem, "index": i};
+            return i;
         }
     }
     return null;
@@ -129,9 +129,9 @@ let _todorw_changeStatus = function(todosArray, idStr, newStatus) {
         }
 
         let todoId = parseInt(idStr);
-        let found = _todorw_getById(todosArray, todoId);
-        if (found) {
-            let todoItem = found["todoItem"];
+        let todoIndex = _todorw_getById(todosArray, todoId);
+        if (todoIndex) {
+            let todoItem = todosArray[todoIndex];
             todoItem["status"] = newStatus;
             todoItem["et"] = Date.now();
 
@@ -207,9 +207,8 @@ todorw.del = function(idStr) {
     let and = _todorw_read().then(function onFulfilled(todosStr) {
         let todosArray = _todorw_stringToArray(todosStr);
         let todoId = parseInt(idStr);
-        let found = _todorw_getById(todosArray, todoId);
-        if (found) {
-            let todoIndex = found["index"];
+        let todoIndex = _todorw_getById(todosArray, todoId);
+        if (todoIndex) {
             todosArray.splice(todoIndex, 1);
             return {"todos": todosArray, "todoId": idStr};
         } else {

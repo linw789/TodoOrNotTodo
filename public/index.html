@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>To Do Or Not To Do</title>
+    <style>
+        textarea {
+            width: 100%;
+        }
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        div.todo-list-item-container {
+            position: relative;
+        }
+        div.todo-item-grey {
+            color: rgb(173, 173, 173);
+        }
+        div.todo-status-column {
+            position: absolute;
+            left: 0px;
+            width: 30px;
+        }
+        p.todo-status-symbol {
+            margin: 0px 0px 0px 0px;
+            font-size: 1.5em;
+            line-height: 90%;
+        }
+        div.todo-info-column {
+            margin: 0px 0px 13px 30px;
+        }
+        p.todo-desc-text {
+            margin: 0px 0px 0px 0px;
+        }
+        p.todo-meta-text {
+            margin: 0px 0px 0px 0px;
+                font-size: 0.9em;
+            color: rgb(226, 155, 13);
+        }
+        button.todo-button {
+            background: none;
+            border: none;
+            color: grey;
+            padding: 0px;
+            margin: 0px 14px 0px 0px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+        div.todo-button-column {
+            float: right;
+        }
+        button.todo-button {
+            margin-bottom: 0px;
+        }
+        hr {
+            margin: 3px 0px 7px 0px;
+        }
+    </style>
+</head>
+<body>
+    <textarea id="new_todo_text" rows="3" cols="80"></textarea>
+    <br>
+    <button id="todo_add_button">Add</button>
+    <ul id="todos">
+    <script>/*
+    <li>
+        <div class="todo-list-item-container">
+            <div class="todo-status-column">
+                <p class="todo-status-symbol">&#x25f7</p>
+            </div>
+
+            <div class="todo-info-column">
+                <p class="todo-desc-text">But maybe there is a simpler explanation. Maybe the smartness and the craziness were not as separate as we think. Physics seems to us a promising thing to work on, and alchemy and theology obvious wastes of time. But that's because we know how things turned out. In Newton's day the three problems seemed roughly equally promising. No one knew yet what the payoff would be for inventing what we now call physics; if they had, more people would have been working on it. And alchemy and theology were still then in the category Marc Andreessen would describe as "huge, if true."</p> 
+                <p class="todo-meta-text">priority: 0 | created: Aug. 17 2017</p>
+                <button class="todo-button">done</button>
+                <button class="todo-button">won't do</button>
+                <button class="todo-button">edit</button>
+                <button class="todo-button">delete</button>
+            </div>
+        </div>
+    </li>
+
+    <li>
+        <div class="todo-list-item-container">
+            <div class="todo-status-column">
+                <p class="todo-status-symbol">&#x22ef</p>
+            </div>
+
+            <div class="todo-info-column">
+                <p class="todo-desc-text">Todo work in progress</p>
+                <p class="todo-meta-text">priority: 0 | created: Aug. 17 2017</p>
+                <button class="todo-button">delete</button>
+            </div>
+        </div>
+    </li>
+
+    <li>
+        <div class="todo-list-item-container todo-item-grey">
+            <div class="todo-status-column">
+                <p class="todo-status-symbol">&#x2713</p>
+            </div>
+
+            <div class="todo-info-column">
+                <p class="todo-desc-text">Todo Done</p>
+                <p class="todo-meta-text">priority: 0 | created: Aug. 17 2017 | done: Aug. 17 2017</p>
+                <button class="todo-button">delete</button>
+            </div>
+        </div>
+    </li>
+
+    <li>
+        <div class="todo-list-item-container todo-item-grey">
+            <div class="todo-status-column">
+                <p class="todo-status-symbol">&#x2715</p>
+            </div>
+
+            <div class="todo-info-column">
+                <p class="todo-desc-text">Todo Won't do</p>
+                <p class="todo-meta-text">priority: 0 | created: Aug. 17 2017 | won't do: Aug. 17 2017</p>
+                <button class="todo-button">delete</button>
+            </div>
+        </div>
+    </li>
+    */</script>
+    </ul>
+
+    <script type="text/javascript" src="index.js"></script>
+</body>
+</html>

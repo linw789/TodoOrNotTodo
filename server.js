@@ -14,7 +14,7 @@ function simpleRespond(res, errCode, errMessage) {
 
 app.get("/", function(req, res) {
     fs.readFile('index.html', function (err, data) {
-        res.writeHead(200, {'Content-Type': 'text/html', 'Content-Length': data.length});
+        res.writeHead(200, {'Content-Type': 'text/html'});
         res.write(data);
         res.end();
     });
@@ -54,7 +54,6 @@ app.post("/addnewtodo", function(req, res) {
             res.statusCode = 200;
             res.setHeader("Content-Type", "text/plain");
             let timestampStr = timestamp.toString();
-            res.setHeader("Context-Length", timestampStr.length);
             res.write(timestampStr);
             res.end();
         }, function onRejected(err) {
@@ -82,7 +81,6 @@ app.post("/tododone", function(req, res) {
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json");
             let todoitemStr = JSON.stringify(todoChanged);
-            res.setHeader("Context-Length", todoitemStr.length);
             res.write(todoitemStr);
             res.end();
         }, function onRejected(err) {
@@ -110,7 +108,6 @@ app.post("/todowontdo", function(req, res) {
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json");
             let todoitemStr = JSON.stringify(todoChanged);
-            res.setHeader("Context-Length", todoitemStr.length);
             res.write(todoitemStr);
             res.end();
         }, function onRejected(err) {
@@ -137,7 +134,6 @@ app.post("/tododelete", function(req, res) {
         and.done(function onFulfilled(todoIdStr) {
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json");
-            res.setHeader("Context-Length", todoIdStr.length);
             res.write(todoIdStr);
             res.end();
         }, function onRejected(err) {

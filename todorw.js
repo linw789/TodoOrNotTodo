@@ -203,6 +203,25 @@ todorw.wontdo = function(idStr) {
     return and;
 }
 
+todorw.edit = function(todoIdStr, todoStr) {
+    let and = _todorw_read().then(function onFulfilled(todosStr) {
+        let todosArray = _todorw_stringToArray(todosStr);
+        let todoId = parseInt(todoIdStr);
+        let todoIndex = _todorw_getById(todosArray, todoId);
+        if (todoIndex) {
+            let todoItem = todosArray[todoIndex];
+            todoItem.desc = todoStr;
+            return {"todos": todosArray, "todoId": todoIdStr};
+        } else {
+            throw new Error("No todo item with id " + todoId + " is found.");
+        }
+    }).then(function onFulfilled(result) {
+        let writeAnd = _todorw_write(result.todos, result.todoId);
+        return writeAnd;
+    });
+    return and;
+}
+
 todorw.del = function(idStr) {
     let and = _todorw_read().then(function onFulfilled(todosStr) {
         let todosArray = _todorw_stringToArray(todosStr);
@@ -212,8 +231,7 @@ todorw.del = function(idStr) {
             todosArray.splice(todoIndex, 1);
             return {"todos": todosArray, "todoId": idStr};
         } else {
-            let err = new Error("No todo item with id " + todoId + " is found.");
-            reject(err);
+            throw new Error("No todo item with id " + todoId + " is found.");
         }
     }).then(function onFulfilled(result) {
         let writeAnd = _todorw_write(result.todos, result.todoId);

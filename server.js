@@ -116,6 +116,35 @@ app.post("/todowontdo", function(req, res) {
     });
 });
 
+app.post("/todoedit", function(req, res) {
+    let reqbody = [];
+    req.on("data", (chunk) => {
+        // TODO: Test body length for overflow.
+        reqbody.push(chunk);
+    });
+
+    req.on("end", () => {
+        reqbody = Buffer.concat(reqbody).toString();
+        if (reqbody === "") {
+            simpleRespond(res, 400, "empty request body");
+            return;
+        }
+
+        let data = JSON.parse(reqbody);
+        let todoIdStr = data["st"];
+        let todoStr = data["desc"];
+
+        let and = todorw.edit(todoIdStr, todoStr);
+        and.done(function onFulfilled(todoIdStr) {
+            res.statusCode = 200;
+            res.write(todoIdStr);
+            res.end();
+        }, function onRejected(err) {
+            simpleRespond(res, 500, err.message);
+        });
+    });
+});
+
 app.post("/tododelete", function(req, res) {
     let reqbody = [];
     req.on("data", (chunk) => {

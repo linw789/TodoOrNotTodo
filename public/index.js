@@ -13,17 +13,17 @@ function debugLog(test) {
     console.log("client debug linw: " + test);
 }
 
-function getTodoMetaString(todoitem) {
-    let metaText = "priority: " + todoitem["priority"];
+function getTodoMetaString(todoItem) {
+    let metaText = "priority: " + todoItem["priority"];
 
-    let createDate = new Date(todoitem["st"]);
+    let createDate = new Date(todoItem["st"]);
     metaText += " | created: " + createDate.toDateString();
 
-    if (todoitem["status"] == TD_DONE) {
-        let doneDate = new Date(todoitem["et"]);
+    if (todoItem["status"] == TD_DONE) {
+        let doneDate = new Date(todoItem["et"]);
         metaText += " | done: " + doneDate.toDateString();
-    } else if (todoitem["status"] == TD_WONTDO) {
-        let abandonDate = new Date(todoitem["et"]);
+    } else if (todoItem["status"] == TD_WONTDO) {
+        let abandonDate = new Date(todoItem["et"]);
         metaText += " | won't do: " + abandonDate.toDateString();
     }
     
@@ -38,8 +38,151 @@ function onHttpRequestAbort() {
     console.error("XMLHttpRequest abort");
 }
 
-function buildHtml_markTodoItemGrey(todoitem) {
-    let todoItemUID = todoitem["st"];
+function onHttpRequestLoad_todoDone() {
+    if (this.readyState === 4) {
+        if (this.status === 200) {
+            let todoItem = JSON.parse(this.responseText);
+            buildHtml_markTodoItemGrey(todoItem);
+        } else {
+            console.error("XMLHttpRequest error. Reason: " + this.responseText);
+        }
+    }
+}
+
+function requestHttp_todoDone() {
+    let listItemElem = this.closest("li");
+    let todoId = listItemElem.id;
+
+    let httpReq = new XMLHttpRequest();
+
+    httpReq.addEventListener("load", onHttpRequestLoad_todoDone);
+    httpReq.addEventListener("error", onHttpRequestError);
+    httpReq.addEventListener("abort", onHttpRequestAbort);
+
+    httpReq.open("POST", "/tododone", true);
+
+    httpReq.setRequestHeader("Content-Type", "text/plain; charset=utf-8");
+    httpReq.send(todoId);
+}
+
+function onHttpRequestLoad_todoWontdo() {
+    if (this.readyState === 4) {
+        if (this.status === 200) {
+            let todoItem = JSON.parse(this.responseText);
+            buildHtml_markTodoItemGrey(todoItem);
+        } else {
+            console.error("XMLHttpRequest error. Reason: " + this.responseText);
+        }
+    }
+}
+
+function requestHttp_todoWontdo() {
+    let listItemElem = this.closest("li");
+    let todoId = listItemElem.id;
+
+    let httpReq = new XMLHttpRequest();
+
+    httpReq.addEventListener("load", onHttpRequestLoad_todoWontdo);
+    httpReq.addEventListener("error", onHttpRequestError);
+    httpReq.addEventListener("abort", onHttpRequestAbort);
+
+    httpReq.open("POST", "/todowontdo", true);
+
+    httpReq.setRequestHeader("Content-Type", "text/plain; charset=utf-8");
+    httpReq.send(todoId);
+}
+
+function todoEditButtonClick() {
+    let listItemElem = this.closest("li");
+    let todoStr = listItemElem.getAttribute("data-raw-text");
+
+    let todoListItemContainerElem = listItemElem.children[0];
+    let todoInfoDivElem = todoListItemContainerElem.getElementsByClassName("todo-info-column")[0];
+    todoInfoDivElem.style.display = "none";
+
+    let editDivElem = buildHtml_todoEditDiv(todoStr);
+    todoListItemContainerElem.appendChild(editDivElem);
+}
+
+function todoEditCancelButtonClick() {
+    let listItemElem = this.closest("li");
+    let todoListItemContainerElem = listItemElem.children[0];
+    let todoEditDivElem = todoListItemContainerElem.getElementsByClassName("todo-edit-text")[0];
+    todoListItemContainerElem.removeChild(todoEditDivElem);
+    let todoInfoDivElem = todoListItemContainerElem.getElementsByClassName("todo-info-column")[0];
+    todoInfoDivElem.style.display = "block";
+}
+
+function onHttpRequestLoad_todoEditOk() {
+    if (this.readyState === 4) {
+        if (this.status === 200) {
+            let todoId = this.responseText;
+            buildHtml_editTodoText(todoId);
+        } else {
+            console.error("XMLHttpRequest error. Reason: " + this.responseText);
+        }
+    }
+}
+
+function requestHttp_todoEditOk() {
+    let listItemElem = this.closest("li");
+    let todoId = listItemElem.id;
+
+    let todoListItemContainerElem = listItemElem.children[0];
+    let todoEditDivElem = todoListItemContainerElem.getElementsByClassName("todo-edit-text")[0];
+    let textAreaElem = todoEditDivElem.getElementsByClassName("new-todo-text")[0];
+
+    if (textAreaElem.value === "") {
+        return;
+    }
+
+    let todoData = {
+        "st": todoId,
+        "desc": textAreaElem.value,
+    };
+    let todoDataStr = JSON.stringify(todoData);
+
+    let httpReq = new XMLHttpRequest();
+
+    httpReq.addEventListener("load", onHttpRequestLoad_todoEditOk);
+    httpReq.addEventListener("error", onHttpRequestError);
+    httpReq.addEventListener("abort", onHttpRequestAbort);
+
+    httpReq.open("POST", "/todoedit", true);
+
+    httpReq.setRequestHeader("Content-Type", "text/plain; charset=utf-8");
+    httpReq.send(todoDataStr);
+}
+
+function onHttpRequestLoad_todoDelete() {
+    if (this.readyState === 4) {
+        if (this.status === 200) {
+            let todoItem = JSON.parse(this.responseText);
+            buildHtml_deleteTodoItem(todoItem);
+        } else {
+            console.error("XMLHttpRequest error. Reason: " + this.responseText);
+        }
+    }
+}
+
+function requestHttp_todoDelete() {
+    let listItemElem = this.closest("li");
+    let todoId = listItemElem.id;
+
+    let httpReq = new XMLHttpRequest();
+
+    httpReq.addEventListener("load", onHttpRequestLoad_todoDelete);
+    httpReq.addEventListener("error", onHttpRequestError);
+    httpReq.addEventListener("abort", onHttpRequestAbort);
+
+    httpReq.open("POST", "/tododelete", true);
+
+    httpReq.setRequestHeader("Content-Type", "text/plain; charset=utf-8");
+    httpReq.send(todoId);
+}
+
+function buildHtml_markTodoItemGrey(todoItem) {
+    let todoItemUID = todoItem["st"];
     let todoListItemElem = document.getElementById(todoItemUID);
     if (todoListItemElem !== null) {
         let todoListItemContainerElem = todoListItemElem.children[0];
@@ -47,15 +190,15 @@ function buildHtml_markTodoItemGrey(todoitem) {
 
         // change status symbol
         let statusSymbolPElem = todoListItemContainerElem.getElementsByClassName("todo-status-symbol"); 
-        if (todoitem["status"] === TD_DONE) {
+        if (todoItem["status"] === TD_DONE) {
             statusSymbolPElem[0].textContent = TD_STATUS_SYMBOL_CHECK;
-        } else if (todoitem["status"] === TD_WONTDO) {
+        } else if (todoItem["status"] === TD_WONTDO) {
             statusSymbolPElem[0].textContent = TD_STATUS_SYMBOL_CROSS;
         }
 
         // change to-do meta text
         let todoMetaPElem = todoListItemContainerElem.getElementsByClassName("todo-meta-text");
-        todoMetaPElem[0].textContent = getTodoMetaString(todoitem);
+        todoMetaPElem[0].textContent = getTodoMetaString(todoItem);
 
         // remove "done", "won't do" and "edit" buttons
         let todoInfoColumnDivElem = todoListItemContainerElem.getElementsByClassName("todo-info-column")[0];
@@ -68,6 +211,20 @@ function buildHtml_markTodoItemGrey(todoitem) {
     }
 }
 
+function buildHtml_editTodoText(todoId) {
+    let listItemElem = document.getElementById(todoId);
+    let todoListItemContainerElem = listItemElem.children[0];
+    let todoEditDivElem = todoListItemContainerElem.getElementsByClassName("todo-edit-text")[0];
+    let textAreaElem = todoEditDivElem.getElementsByClassName("new-todo-text")[0];
+    let newTodoText = textAreaElem.value;
+    listItemElem.setAttribute("data-raw-text", newTodoText);
+    todoListItemContainerElem.removeChild(todoEditDivElem);
+    let todoInfoDivElem = todoListItemContainerElem.getElementsByClassName("todo-info-column")[0];
+    let todoDescTextElem = todoInfoDivElem.getElementsByClassName("todo-desc-text")[0];
+    todoDescTextElem.textContent = newTodoText;
+    todoInfoDivElem.style.display = "block";
+}
+
 function buildHtml_deleteTodoItem(todoId) {
     let todoListItemElem = document.getElementById(todoId);
     if (todoListItemElem !== null) {
@@ -78,93 +235,38 @@ function buildHtml_deleteTodoItem(todoId) {
     }
 }
 
-function onHttpRequestLoad_todoDone() {
-    if (this.readyState === 4) {
-        if (this.status === 200) {
-            let todoitem = JSON.parse(this.responseText);
-            buildHtml_markTodoItemGrey(todoitem);
-        } else {
-            console.error("XMLHttpRequest error. Reason: " + this.responseText);
-        }
-    }
+function buildHtml_todoEditDiv(todoStr) {
+    let editDivElem = document.createElement("div");
+    editDivElem.className = "todo-edit-text";
+
+    let textAreaElem = document.createElement("textarea");
+    textAreaElem.value = todoStr;
+    editDivElem.appendChild(textAreaElem);
+
+    let editOkButton = document.createElement("button");
+    editOkButton.className = "todo-button";
+    let editOkButtonTextNode = document.createTextNode("ok");
+    editOkButton.appendChild(editOkButtonTextNode);
+    editOkButton.addEventListener("click", requestHttp_todoEditOk);
+    editDivElem.appendChild(editOkButton);
+
+    let editCancelButton = document.createElement("button");
+    editCancelButton.className = "todo-button";
+    let editCancelButtonTextNode = document.createTextNode("cancel");
+    editCancelButton.appendChild(editCancelButtonTextNode);
+    editCancelButton.addEventListener("click", todoEditCancelButtonClick);
+    editDivElem.appendChild(editCancelButton);
+
+    return editDivElem;
 }
 
-function requestHttp_todoDone() {
-    let listItemElem = this.closest("li");
-    let todoUID = listItemElem.id;
-
-    let httpReq = new XMLHttpRequest();
-
-    httpReq.addEventListener("load", onHttpRequestLoad_todoDone);
-    httpReq.addEventListener("error", onHttpRequestError);
-    httpReq.addEventListener("abort", onHttpRequestAbort);
-
-    httpReq.open("POST", "/tododone", true);
-
-    httpReq.setRequestHeader("Content-Type", "text/plain; charset=utf-8");
-    httpReq.send(todoUID);
-}
-
-function onHttpRequestLoad_todoWontdo() {
-    if (this.readyState === 4) {
-        if (this.status === 200) {
-            let todoitem = JSON.parse(this.responseText);
-            buildHtml_markTodoItemGrey(todoitem);
-        } else {
-            console.error("XMLHttpRequest error. Reason: " + this.responseText);
-        }
-    }
-}
-
-function requestHttp_todoWontdo() {
-    let listItemElem = this.closest("li");
-    let todoUID = listItemElem.id;
-
-    let httpReq = new XMLHttpRequest();
-
-    httpReq.addEventListener("load", onHttpRequestLoad_todoWontdo);
-    httpReq.addEventListener("error", onHttpRequestError);
-    httpReq.addEventListener("abort", onHttpRequestAbort);
-
-    httpReq.open("POST", "/todowontdo", true);
-
-    httpReq.setRequestHeader("Content-Type", "text/plain; charset=utf-8");
-    httpReq.send(todoUID);
-}
-
-function onHttpRequestLoad_todoDelete() {
-    if (this.readyState === 4) {
-        if (this.status === 200) {
-            let todoitem = JSON.parse(this.responseText);
-            buildHtml_deleteTodoItem(todoitem);
-        } else {
-            console.error("XMLHttpRequest error. Reason: " + this.responseText);
-        }
-    }
-}
-
-function requestHttp_todoDelete() {
-    let listItemElem = this.closest("li");
-    let todoUID = listItemElem.id;
-
-    let httpReq = new XMLHttpRequest();
-
-    httpReq.addEventListener("load", onHttpRequestLoad_todoDelete);
-    httpReq.addEventListener("error", onHttpRequestError);
-    httpReq.addEventListener("abort", onHttpRequestAbort);
-
-    httpReq.open("POST", "/tododelete", true);
-
-    httpReq.setRequestHeader("Content-Type", "text/plain; charset=utf-8");
-    httpReq.send(todoUID);
-}
-
-function buildHtml_todoListItem(todoitem) {
+function buildHtml_todoListItem(todoItem) {
     let listLiElem = document.createElement("li");
     // take the creation UTC timestamp as UID for each to-do-list item
-    listLiElem.id = todoitem["st"];
+    listLiElem.id = todoItem["st"];
+    listLiElem.setAttribute("data-raw-text", todoItem.desc);
 
-    let isTodoClosed = (todoitem["status"] > TD_CREATED);
+    let isTodoClosed = (todoItem["status"] > TD_CREATED);
 
     // div layout container
     let containerDivElem = document.createElement("div");
@@ -181,7 +283,7 @@ function buildHtml_todoListItem(todoitem) {
     let todoStatusSymbolPElem = document.createElement("p");
     todoStatusSymbolPElem.className = "todo-status-symbol";
     let symbolTextNode;
-    switch (todoitem["status"]) {
+    switch (todoItem["status"]) {
         case TD_CREATED: {
             symbolTextNode = document.createTextNode(TD_STATUS_SYMBOL_CLOCK);
         } break;
@@ -206,14 +308,14 @@ function buildHtml_todoListItem(todoitem) {
 
     let todoDescPElem = document.createElement("p");
     todoDescPElem.className = "todo-desc-text";
-    let todoDescTextNode = document.createTextNode(todoitem["desc"]);
+    let todoDescTextNode = document.createTextNode(todoItem.desc);
     todoDescPElem.appendChild(todoDescTextNode);
 
     todoInfoDivElem.appendChild(todoDescPElem);
 
     let todoMetaPElem = document.createElement("p");
     todoMetaPElem.className = "todo-meta-text";
-    let todoMetaTextNode = document.createTextNode(getTodoMetaString(todoitem));
+    let todoMetaTextNode = document.createTextNode(getTodoMetaString(todoItem));
     todoMetaPElem.appendChild(todoMetaTextNode);
 
     todoInfoDivElem.appendChild(todoMetaPElem);
@@ -238,6 +340,7 @@ function buildHtml_todoListItem(todoitem) {
         todoEditButton.className = "todo-button";
         let todoEditButtonTextNode = document.createTextNode("edit");
         todoEditButton.appendChild(todoEditButtonTextNode);
+        todoEditButton.addEventListener("click", todoEditButtonClick);
         todoInfoDivElem.appendChild(todoEditButton);
     }
 
@@ -268,14 +371,14 @@ function buildHtml_todosList(todos) {
 function buildHtml_addTodoItem(timestamp) {
     let todoText = document.getElementById("new_todo_text");
 
-    let todoitem = {
+    let todoItem = {
         "desc" : todoText.value,
         "status" : TD_CREATED,
         "priority" : 0,
         "st" : timestamp,
         "et" : 0
     };
-    let todoListItemElem = buildHtml_todoListItem(todoitem);
+    let todoListItemElem = buildHtml_todoListItem(todoItem);
 
     let todoListElem = document.getElementById("todos");
     todoListElem.insertBefore(todoListItemElem, todoListElem.childNodes[0]);

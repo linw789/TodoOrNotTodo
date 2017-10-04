@@ -130,8 +130,7 @@ function requestHttp_todoEditOk() {
 
     let todoListItemContainerElem = listItemElem.children[0];
     let todoEditDivElem = todoListItemContainerElem.getElementsByClassName("todo-edit-text")[0];
-    let textAreaElem = todoEditDivElem.getElementsByClassName("new-todo-text")[0];
-
+    let textAreaElem = todoEditDivElem.children[0];
     if (textAreaElem.value === "") {
         return;
     }
@@ -215,14 +214,14 @@ function buildHtml_editTodoText(todoId) {
     let listItemElem = document.getElementById(todoId);
     let todoListItemContainerElem = listItemElem.children[0];
     let todoEditDivElem = todoListItemContainerElem.getElementsByClassName("todo-edit-text")[0];
-    let textAreaElem = todoEditDivElem.getElementsByClassName("new-todo-text")[0];
+    let textAreaElem = todoEditDivElem.children[0];
     let newTodoText = textAreaElem.value;
     listItemElem.setAttribute("data-raw-text", newTodoText);
     todoListItemContainerElem.removeChild(todoEditDivElem);
     let todoInfoDivElem = todoListItemContainerElem.getElementsByClassName("todo-info-column")[0];
     let todoDescTextElem = todoInfoDivElem.getElementsByClassName("todo-desc-text")[0];
     let markedText = window.showdownMarker.makeHtml(newTodoText);
-    todoDescTextElem.innerHTML = newTodoText;
+    todoDescTextElem.innerHTML = markedText;
     todoInfoDivElem.style.display = "block";
 }
 
@@ -373,10 +372,10 @@ function buildHtml_todosList(todos) {
 }
 
 function buildHtml_addTodoItem(timestamp) {
-    let todoText = document.getElementById("new_todo_text");
+    let todoTextAreaElem = document.getElementById("new-todo-textarea");
 
     let todoItem = {
-        "desc" : todoText.value,
+        "desc" : todoTextAreaElem.value,
         "status" : TD_CREATED,
         "priority" : 0,
         "st" : timestamp,
@@ -454,8 +453,6 @@ function requestHttp_loadTodosJson() {
 
 window.onload = requestHttp_loadTodosJson;
 
-let todoText = document.getElementById("new_todo_text");
-
 function onHttpRequestLoad_addNewTodo() {
     if (this.readyState === 4) {
         if (this.status === 200) {
@@ -463,7 +460,8 @@ function onHttpRequestLoad_addNewTodo() {
             if (st === NaN) {
             } else {
                 buildHtml_addTodoItem(st);
-                todoText.value = "";
+                let todoTextAreaElem = document.getElementById("new-todo-textarea");
+                todoTextAreaElem.value = "";
             }
         } else {
             console.error("XMLHttpRequest error: " + this.statusText + ". Reason: " + this.responseText);
@@ -474,7 +472,8 @@ function onHttpRequestLoad_addNewTodo() {
 function requestHttp_addNewTodo(evt) {
     // evt.preventDefault(); // this only needed for buttons of html form element
 
-    if (todoText.value === '') {
+    let todoTextAreaElem = document.getElementById("new-todo-textarea");
+    if (todoTextAreaElem.value === '') {
         console.log("No todo description!");
         return;
     }
@@ -488,7 +487,7 @@ function requestHttp_addNewTodo(evt) {
     httpReq.open("POST", "/addnewtodo", true);
 
     httpReq.setRequestHeader("Content-Type", "text/plain; charset=utf-8");
-    httpReq.send(todoText.value);
+    httpReq.send(todoTextAreaElem.value);
 }
 
 let addButton = document.getElementById("todo_add_button");

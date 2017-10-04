@@ -5,10 +5,10 @@
     <meta charset="utf-8" />
     <title>To Do Or Not To Do</title>
     <style>
-        textarea {
+        textarea.todo-textarea {
             width: 100%;
         }
-        ul {
+        ul.todo-ul {
             list-style: none;
             padding-left: 0;
         }
@@ -60,16 +60,13 @@
         button.todo-button {
             margin-bottom: 0px;
         }
-        hr {
-            margin: 3px 0px 7px 0px;
-        }
     </style>
 </head>
 <body>
-    <textarea id="new_todo_text" rows="3" cols="80"></textarea>
+    <textarea id="new_todo_text" class="todo-textarea" rows="3" cols="80"></textarea>
     <br>
     <button id="todo_add_button">Add</button>
-    <ul id="todos">
+    <ul id="todos" class="todo-ul">
     <script>/*
     <li>
         <div class="todo-list-item-container">
@@ -109,7 +106,7 @@
             </div>
 
             <div class="todo-info-column">
-                <p class="todo-desc-text">Todo work in progress</p>
+                <div class="todo-desc-text">Todo work in progress</div>
                 <p class="todo-meta-text">priority: 0 | created: Aug. 17 2017</p>
                 <button class="todo-button">delete</button>
             </div>
@@ -123,7 +120,7 @@
             </div>
 
             <div class="todo-info-column">
-                <p class="todo-desc-text">Todo Done</p>
+                <div class="todo-desc-text">Todo Done</div>
                 <p class="todo-meta-text">priority: 0 | created: Aug. 17 2017 | done: Aug. 17 2017</p>
                 <button class="todo-button">delete</button>
             </div>
@@ -137,7 +134,7 @@
             </div>
 
             <div class="todo-info-column">
-                <p class="todo-desc-text">Todo Won't do</p>
+                <div class="todo-desc-text">Todo Won't do</div>
                 <p class="todo-meta-text">priority: 0 | created: Aug. 17 2017 | won't do: Aug. 17 2017</p>
                 <button class="todo-button">delete</button>
             </div>
@@ -146,6 +143,8 @@
     */</script>
     </ul>
 
+    <script type="text/javascript" src="showdown.min.js"></script>
+    <script>window.showdownMarker = new showdown.Converter({tasklists: "true"})</script>
     <script type="text/javascript" src="index.js"></script>
 </body>
 </html>

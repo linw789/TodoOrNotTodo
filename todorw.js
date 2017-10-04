@@ -100,7 +100,7 @@ function _todorw_write(todosArray, passAlong) {
 /**
  * @param {Array} todos
  * @param {number} id
- * @return index or null
+ * @return number
  */
 function _todorw_getById(todos, id) {
     for (let i = 0; i < todos.length; ++i) {
@@ -109,7 +109,7 @@ function _todorw_getById(todos, id) {
             return i;
         }
     }
-    return null;
+    return -1;
 }
 
 function _todorw_stringToArray(todosStr) {
@@ -130,7 +130,7 @@ function _todorw_changeStatus(todosArray, idStr, newStatus) {
 
         let todoId = parseInt(idStr);
         let todoIndex = _todorw_getById(todosArray, todoId);
-        if (todoIndex) {
+        if (todoIndex >= 0) {
             let todoItem = todosArray[todoIndex];
             todoItem["status"] = newStatus;
             todoItem["et"] = Date.now();
@@ -208,7 +208,7 @@ todorw.edit = function(todoIdStr, todoStr) {
         let todosArray = _todorw_stringToArray(todosStr);
         let todoId = parseInt(todoIdStr);
         let todoIndex = _todorw_getById(todosArray, todoId);
-        if (todoIndex) {
+        if (todoIndex >= 0) {
             let todoItem = todosArray[todoIndex];
             todoItem.desc = todoStr;
             return {"todos": todosArray, "todoId": todoIdStr};
@@ -227,7 +227,7 @@ todorw.del = function(idStr) {
         let todosArray = _todorw_stringToArray(todosStr);
         let todoId = parseInt(idStr);
         let todoIndex = _todorw_getById(todosArray, todoId);
-        if (todoIndex) {
+        if (todoIndex >= 0) {
             todosArray.splice(todoIndex, 1);
             return {"todos": todosArray, "todoId": idStr};
         } else {

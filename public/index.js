@@ -221,7 +221,8 @@ function buildHtml_editTodoText(todoId) {
     todoListItemContainerElem.removeChild(todoEditDivElem);
     let todoInfoDivElem = todoListItemContainerElem.getElementsByClassName("todo-info-column")[0];
     let todoDescTextElem = todoInfoDivElem.getElementsByClassName("todo-desc-text")[0];
-    todoDescTextElem.textContent = newTodoText;
+    let markedText = window.showdownMarker.makeHtml(newTodoText);
+    todoDescTextElem.innerHTML = newTodoText;
     todoInfoDivElem.style.display = "block";
 }
 
@@ -240,6 +241,7 @@ function buildHtml_todoEditDiv(todoStr) {
     editDivElem.className = "todo-edit-text";
 
     let textAreaElem = document.createElement("textarea");
+    textAreaElem.className = "todo-textarea";
     textAreaElem.value = todoStr;
     editDivElem.appendChild(textAreaElem);
 
@@ -264,6 +266,8 @@ function buildHtml_todoListItem(todoItem) {
     let listLiElem = document.createElement("li");
     // take the creation UTC timestamp as UID for each to-do-list item
     listLiElem.id = todoItem["st"];
+
+    // we want to preserve the original text after it being rendered into marked html
     listLiElem.setAttribute("data-raw-text", todoItem.desc);
 
     let isTodoClosed = (todoItem["status"] > TD_CREATED);
@@ -306,12 +310,12 @@ function buildHtml_todoListItem(todoItem) {
     let todoInfoDivElem = document.createElement("div");
     todoInfoDivElem.className = "todo-info-column";
 
-    let todoDescPElem = document.createElement("p");
-    todoDescPElem.className = "todo-desc-text";
-    let todoDescTextNode = document.createTextNode(todoItem.desc);
-    todoDescPElem.appendChild(todoDescTextNode);
+    let todoDescDivElem = document.createElement("div");
+    todoDescDivElem.className = "todo-desc-text";
+    let markedText = window.showdownMarker.makeHtml(todoItem.desc);
+    todoDescDivElem.innerHTML = markedText;
 
-    todoInfoDivElem.appendChild(todoDescPElem);
+    todoInfoDivElem.appendChild(todoDescDivElem);
 
     let todoMetaPElem = document.createElement("p");
     todoMetaPElem.className = "todo-meta-text";

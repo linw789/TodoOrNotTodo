@@ -63,84 +63,35 @@
     </style>
 </head>
 <body>
-    <textarea id="new-todo-textarea" class="todo-textarea" rows="3" cols="80"></textarea>
+    <textarea id="new-todo-textarea" class="todo-textarea" rows="8" cols="80"></textarea>
     <br>
     <button id="todo_add_button">Add</button>
     <ul id="todos" class="todo-ul">
-    <script>/*
+    <template id="template-todo-list-item">
     <li>
         <div class="todo-list-item-container">
             <div class="todo-status-column">
-                <p class="todo-status-symbol">&#x25f7</p>
+                <p class="todo-status-symbol"></p>
             </div>
 
             <div class="todo-info-column">
-                <div class="todo-desc-text">But maybe there is a simpler explanation. Maybe the smartness and the craziness were not as separate as we think. Physics seems to us a promising thing to work on, and alchemy and theology obvious wastes of time. But that's because we know how things turned out. In Newton's day the three problems seemed roughly equally promising. No one knew yet what the payoff would be for inventing what we now call physics; if they had, more people would have been working on it. And alchemy and theology were still then in the category Marc Andreessen would describe as "huge, if true."</div> 
-                <p class="todo-meta-text">priority: 0 | created: Aug. 17 2017</p>
-                <button class="todo-button">done</button>
-                <button class="todo-button">won't do</button>
-                <button class="todo-button">edit</button>
-                <button class="todo-button">delete</button>
+                <div class="todo-desc-text"></div> 
+                <p class="todo-meta-text"></p>
+                <button class="todo-button"></button>
+                <button class="todo-button"></button>
+                <button class="todo-button"></button>
+                <button class="todo-button"></button>
             </div>
-        </div>
-    </li>
-
-    <li>
-        <div class="todo-list-item-container">
-            <div class="todo-status-column">
-                <p class="todo-status-symbol">&#x25f7</p>
-            </div>
-
+            <template id="template-todo-edit-div">
             <div class="todo-edit-text">
-                <textarea rows="3" cols="80"></textarea>
+                <textarea class = "todo-textarea" rows="4" cols="80"></textarea>
                 <button class="todo-button">ok</button>
                 <button class="todo-button">cancel</button>
             </div>
+            </template>
         </div>
     </li>
-
-    <li>
-        <div class="todo-list-item-container">
-            <div class="todo-status-column">
-                <p class="todo-status-symbol">&#x22ef</p>
-            </div>
-
-            <div class="todo-info-column">
-                <div class="todo-desc-text">Todo work in progress</div>
-                <p class="todo-meta-text">priority: 0 | created: Aug. 17 2017</p>
-                <button class="todo-button">delete</button>
-            </div>
-        </div>
-    </li>
-
-    <li>
-        <div class="todo-list-item-container todo-item-grey">
-            <div class="todo-status-column">
-                <p class="todo-status-symbol">&#x2713</p>
-            </div>
-
-            <div class="todo-info-column">
-                <div class="todo-desc-text">Todo Done</div>
-                <p class="todo-meta-text">priority: 0 | created: Aug. 17 2017 | done: Aug. 17 2017</p>
-                <button class="todo-button">delete</button>
-            </div>
-        </div>
-    </li>
-
-    <li>
-        <div class="todo-list-item-container todo-item-grey">
-            <div class="todo-status-column">
-                <p class="todo-status-symbol">&#x2715</p>
-            </div>
-
-            <div class="todo-info-column">
-                <div class="todo-desc-text">Todo Won't do</div>
-                <p class="todo-meta-text">priority: 0 | created: Aug. 17 2017 | won't do: Aug. 17 2017</p>
-                <button class="todo-button">delete</button>
-            </div>
-        </div>
-    </li>
-    */</script>
+    </template>
     </ul>
 
     <script type="text/javascript" src="showdown.min.js"></script>

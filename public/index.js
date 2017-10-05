@@ -97,10 +97,10 @@ function todoEditButtonClick() {
     let todoStr = listItemElem.getAttribute("data-raw-text");
 
     let todoListItemContainerElem = listItemElem.children[0];
-    let todoInfoDivElem = todoListItemContainerElem.getElementsByClassName("todo-info-column")[0];
+    let todoInfoDivElem = todoListItemContainerElem.querySelector(".todo-info-column");
     todoInfoDivElem.style.display = "none";
 
-    let editDivElem = buildHtml_todoEditDiv(todoStr);
+    let editDivElem = buildHtml_todoEditTextArea(todoStr);
     todoListItemContainerElem.appendChild(editDivElem);
 }
 
@@ -129,7 +129,7 @@ function requestHttp_todoEditOk() {
     let todoId = listItemElem.id;
 
     let todoListItemContainerElem = listItemElem.children[0];
-    let todoEditDivElem = todoListItemContainerElem.getElementsByClassName("todo-edit-text")[0];
+    let todoEditDivElem = todoListItemContainerElem.querySelector(".todo-edit-text");
     let textAreaElem = todoEditDivElem.children[0];
     if (textAreaElem.value === "") {
         return;
@@ -188,23 +188,23 @@ function buildHtml_markTodoItemGrey(todoItem) {
         todoListItemContainerElem.className += " todo-item-grey";
 
         // change status symbol
-        let statusSymbolPElem = todoListItemContainerElem.getElementsByClassName("todo-status-symbol"); 
-        if (todoItem["status"] === TD_DONE) {
-            statusSymbolPElem[0].textContent = TD_STATUS_SYMBOL_CHECK;
-        } else if (todoItem["status"] === TD_WONTDO) {
-            statusSymbolPElem[0].textContent = TD_STATUS_SYMBOL_CROSS;
+        let statusSymbolPElem = todoListItemContainerElem.querySelector(".todo-status-symbol"); 
+        if (todoItem.status === TD_DONE) {
+            statusSymbolPElem.textContent = TD_STATUS_SYMBOL_CHECK;
+        } else if (todoItem.status === TD_WONTDO) {
+            statusSymbolPElem.textContent = TD_STATUS_SYMBOL_CROSS;
         }
 
         // change to-do meta text
-        let todoMetaPElem = todoListItemContainerElem.getElementsByClassName("todo-meta-text");
-        todoMetaPElem[0].textContent = getTodoMetaString(todoItem);
+        let todoMetaPElem = todoListItemContainerElem.querySelector(".todo-meta-text");
+        todoMetaPElem.textContent = getTodoMetaString(todoItem);
 
         // remove "done", "won't do" and "edit" buttons
-        let todoInfoColumnDivElem = todoListItemContainerElem.getElementsByClassName("todo-info-column")[0];
-        let buttonElems = todoInfoColumnDivElem.getElementsByClassName("todo-button");
-        todoInfoColumnDivElem.removeChild(buttonElems[0]);
-        todoInfoColumnDivElem.removeChild(buttonElems[0]);
-        todoInfoColumnDivElem.removeChild(buttonElems[0]);
+        let todoInfoColumnDivElem = todoListItemContainerElem.querySelector(".todo-info-column");
+        let buttonElems = todoInfoColumnDivElem.querySelectorAll("button");
+        buttonElems[0].style.display = "none";
+        buttonElems[1].style.display = "none";
+        buttonElems[2].style.display = "none";
     } else {
         console.error("Request received invalid todo UID");
     }
@@ -213,15 +213,14 @@ function buildHtml_markTodoItemGrey(todoItem) {
 function buildHtml_editTodoText(todoId) {
     let listItemElem = document.getElementById(todoId);
     let todoListItemContainerElem = listItemElem.children[0];
-    let todoEditDivElem = todoListItemContainerElem.getElementsByClassName("todo-edit-text")[0];
+    let todoEditDivElem = todoListItemContainerElem.querySelector(".todo-edit-text");
     let textAreaElem = todoEditDivElem.children[0];
     let newTodoText = textAreaElem.value;
     listItemElem.setAttribute("data-raw-text", newTodoText);
     todoListItemContainerElem.removeChild(todoEditDivElem);
-    let todoInfoDivElem = todoListItemContainerElem.getElementsByClassName("todo-info-column")[0];
-    let todoDescTextElem = todoInfoDivElem.getElementsByClassName("todo-desc-text")[0];
-    let markedText = window.showdownMarker.makeHtml(newTodoText);
-    todoDescTextElem.innerHTML = markedText;
+    let todoInfoDivElem = todoListItemContainerElem.querySelector(".todo-info-column");
+    let todoDescTextElem = todoInfoDivElem.querySelector(".todo-desc-text");
+    todoDescTextElem.innerHTML = window.showdownMarker.makeHtml(newTodoText);
     todoInfoDivElem.style.display = "block";
 }
 
@@ -235,134 +234,101 @@ function buildHtml_deleteTodoItem(todoId) {
     }
 }
 
-function buildHtml_todoEditDiv(todoStr) {
-    let editDivElem = document.createElement("div");
-    editDivElem.className = "todo-edit-text";
+function buildHtml_todoEditTextArea(todoStr) {
+    if (!('content' in document.createElement("template"))) {
+        console.error("DOM template is not supported on this browser.");
+    }
 
-    let textAreaElem = document.createElement("textarea");
-    textAreaElem.className = "todo-textarea";
+    let template = document.querySelector("#template-todo-edit-div");
+    let clone = document.importNode(template.content, true);
+    let editDivElem = clone.querySelector("div");
+
+    let textAreaElem = editDivElem.querySelector("textarea");
+    const textAreaRowLimit = 12;
+    let rows = (todoStr.match(/\r?\n/g) || "").length + 1;
+    if (rows > textAreaRowLimit) {
+        rows = textAreaRowLimit;
+    } 
+    textAreaElem.rows = rows;
     textAreaElem.value = todoStr;
-    editDivElem.appendChild(textAreaElem);
 
-    let editOkButton = document.createElement("button");
-    editOkButton.className = "todo-button";
-    let editOkButtonTextNode = document.createTextNode("ok");
-    editOkButton.appendChild(editOkButtonTextNode);
-    editOkButton.addEventListener("click", requestHttp_todoEditOk);
-    editDivElem.appendChild(editOkButton);
-
-    let editCancelButton = document.createElement("button");
-    editCancelButton.className = "todo-button";
-    let editCancelButtonTextNode = document.createTextNode("cancel");
-    editCancelButton.appendChild(editCancelButtonTextNode);
-    editCancelButton.addEventListener("click", todoEditCancelButtonClick);
-    editDivElem.appendChild(editCancelButton);
+    let editButtonElems = editDivElem.querySelectorAll("button");
+    editButtonElems[0].textContent = "ok";
+    editButtonElems[0].addEventListener("click", requestHttp_todoEditOk);
+    editButtonElems[1].textContent = "cancel";
+    editButtonElems[1].addEventListener("click", todoEditCancelButtonClick);
 
     return editDivElem;
 }
 
 function buildHtml_todoListItem(todoItem) {
-    let listLiElem = document.createElement("li");
-    // take the creation UTC timestamp as UID for each to-do-list item
-    listLiElem.id = todoItem["st"];
+    // check if DOM 'template' is supported 
+    if (!('content' in document.createElement("template"))) {
+        console.error("DOM template is not supported on this browser.");
+    }
 
+    let template = document.querySelector("#template-todo-list-item");
+    let clone = document.importNode(template.content, true);
+    let listLiElem = clone.querySelector("li");
+
+    // take the creation UTC timestamp as UID for each to-do-list item
+    listLiElem.id = todoItem.st;
     // we want to preserve the original text after it being rendered into marked html
     listLiElem.setAttribute("data-raw-text", todoItem.desc);
 
-    let isTodoClosed = (todoItem["status"] > TD_CREATED);
+    let isTodoGrey = (todoItem.status > TD_CREATED);
+    let containerDivElem = listLiElem.querySelector(".todo-list-item-container");
+    if (isTodoGrey) {
+        containerDivElem.className += " todo-item-grey";
+    } 
 
-    // div layout container
-    let containerDivElem = document.createElement("div");
-    if (isTodoClosed) {
-        containerDivElem.className = "todo-list-item-container todo-item-grey";
-    } else {
-        containerDivElem.className = "todo-list-item-container";
-    }
-
-    // left status column
-    let todoStatusDivElem = document.createElement("div");
-    todoStatusDivElem.className = "todo-status-column";
-
-    let todoStatusSymbolPElem = document.createElement("p");
-    todoStatusSymbolPElem.className = "todo-status-symbol";
-    let symbolTextNode;
-    switch (todoItem["status"]) {
+    let todoStatusDivElem = containerDivElem.querySelector(".todo-status-column");
+    let todoStatusSymbolPElem = todoStatusDivElem.querySelector("p");
+    switch (todoItem.status) {
         case TD_CREATED: {
-            symbolTextNode = document.createTextNode(TD_STATUS_SYMBOL_CLOCK);
+            todoStatusSymbolPElem.textContent = TD_STATUS_SYMBOL_CLOCK;
         } break;
         case TD_DONE: {
-            symbolTextNode = document.createTextNode(TD_STATUS_SYMBOL_CHECK);
+            todoStatusSymbolPElem.textContent = TD_STATUS_SYMBOL_CHECK;
         } break;
         case TD_WONTDO: {
-            symbolTextNode = document.createTextNode(TD_STATUS_SYMBOL_CROSS);
+            todoStatusSymbolPElem.textContent = TD_STATUS_SYMBOL_CROSS;
         } break;
         default: {
-            symbolTextNode = document.createTextNode(TD_STATUS_SYMBOL_ELLIPSIS);
+            todoStatusSymbolPElem.textContent = TD_STATUS_SYMBOL_ELLIPSIS;
         } break;
     }
-    todoStatusSymbolPElem.appendChild(symbolTextNode);
-    todoStatusDivElem.appendChild(todoStatusSymbolPElem);
 
-    containerDivElem.appendChild(todoStatusDivElem);
+    let todoInfoDivElem = listLiElem.querySelector(".todo-info-column");
+    
+    let todoDescDivElem = todoInfoDivElem.querySelector(".todo-desc-text");
+    todoDescDivElem.innerHTML = window.showdownMarker.makeHtml(todoItem.desc);
 
-    // middle to-do info column
-    let todoInfoDivElem = document.createElement("div");
-    todoInfoDivElem.className = "todo-info-column";
+    let todoMetaPElem = todoInfoDivElem.querySelector(".todo-meta-text");
+    todoMetaPElem.textContent = getTodoMetaString(todoItem); 
 
-    let todoDescDivElem = document.createElement("div");
-    todoDescDivElem.className = "todo-desc-text";
-    let markedText = window.showdownMarker.makeHtml(todoItem.desc);
-    todoDescDivElem.innerHTML = markedText;
-
-    todoInfoDivElem.appendChild(todoDescDivElem);
-
-    let todoMetaPElem = document.createElement("p");
-    todoMetaPElem.className = "todo-meta-text";
-    let todoMetaTextNode = document.createTextNode(getTodoMetaString(todoItem));
-    todoMetaPElem.appendChild(todoMetaTextNode);
-
-    todoInfoDivElem.appendChild(todoMetaPElem);
-
-    // add todo buttons
-    if (!isTodoClosed) {
-        let todoDoneButton = document.createElement("button");
-        todoDoneButton.className = "todo-button";
-        let todoDoneButtonTextNode = document.createTextNode("done");
-        todoDoneButton.appendChild(todoDoneButtonTextNode);
-        todoDoneButton.addEventListener("click", requestHttp_todoDone);
-        todoInfoDivElem.appendChild(todoDoneButton);
-
-        let todoWontdoButton = document.createElement("button");
-        todoWontdoButton.className = "todo-button";
-        let todoWontdoButtonTextNode = document.createTextNode("won't do");
-        todoWontdoButton.appendChild(todoWontdoButtonTextNode);
-        todoWontdoButton.addEventListener("click", requestHttp_todoWontdo);
-        todoInfoDivElem.appendChild(todoWontdoButton);
-
-        let todoEditButton = document.createElement("button");
-        todoEditButton.className = "todo-button";
-        let todoEditButtonTextNode = document.createTextNode("edit");
-        todoEditButton.appendChild(todoEditButtonTextNode);
-        todoEditButton.addEventListener("click", todoEditButtonClick);
-        todoInfoDivElem.appendChild(todoEditButton);
+    // Shallow cloning loses all event listeners, so set them after cloning.
+    let todoButtonElems = listLiElem.querySelectorAll("button");
+    if (isTodoGrey) {
+        for (let i = 0; i < 3; ++i) {
+            todoButtonElems[i].style.display = "none";
+        }
+    } else {
+        todoButtonElems[0].textContent = "done";
+        todoButtonElems[0].addEventListener("click", requestHttp_todoDone);
+        todoButtonElems[1].textContent = "won't do";
+        todoButtonElems[1].addEventListener("click", requestHttp_todoWontdo);
+        todoButtonElems[2].textContent = "edit";
+        todoButtonElems[2].addEventListener("click", todoEditButtonClick);
     }
-
-    let todoDeleteButton = document.createElement("button");
-    todoDeleteButton.className = "todo-button";
-    let todoDeleteButtonTextNode = document.createTextNode("delete");
-    todoDeleteButton.appendChild(todoDeleteButtonTextNode);
-    todoDeleteButton.addEventListener("click", requestHttp_todoDelete);
-    todoInfoDivElem.appendChild(todoDeleteButton);
-
-    containerDivElem.appendChild(todoInfoDivElem);
-
-    listLiElem.appendChild(containerDivElem);
+    todoButtonElems[3].textContent = "delete";
+    todoButtonElems[3].addEventListener("click", requestHttp_todoDelete);
 
     return listLiElem;
 }
 
 function buildHtml_todosList(todos) {
-    let todoListElem = document.getElementById("todos");
+    let todoListElem = document.querySelector("#todos");
 
     for (let i = 0; i < todos.length; ++i) {
         let item = todos[i];
@@ -372,7 +338,7 @@ function buildHtml_todosList(todos) {
 }
 
 function buildHtml_addTodoItem(timestamp) {
-    let todoTextAreaElem = document.getElementById("new-todo-textarea");
+    let todoTextAreaElem = document.querySelector("#new-todo-textarea");
 
     let todoItem = {
         "desc" : todoTextAreaElem.value,

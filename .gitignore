@@ -11,6 +11,7 @@ todoslist.json.temp
 npm-debug.log
 app.zip
 credentials.csv
+aws_keys.json
 
 /bin/
 /obj/

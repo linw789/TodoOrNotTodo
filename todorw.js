@@ -8,7 +8,9 @@ const fs = require("fs");
 const And = require("./and.js");
 
 const S3 = require("aws-sdk/clients/s3");
-const s3 = new S3({ apiVersion: "2006-03-01", region: "us-west-1", accessKeyId: "", secretAccessKey: ""});
+
+let keys = JSON.parse(fs.readFileSync("aws_keys.json", "utf8"));
+const s3 = new S3({ apiVersion: "2006-03-01", region: "us-west-1", accessKeyId: keys.key, secretAccessKey: keys.secretKey});
 
 // todo item status
 const TD_CREATED = 0;

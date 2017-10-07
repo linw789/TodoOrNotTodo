@@ -31,7 +31,7 @@ app.get("/todoslist.json", function(req, res) {
         res.write(todosStr);
         res.end();
     }, function onRejected(err) {
-        simpleRespond(res, 500, err.message);
+        simpleRespond(res, err.statusCode, "error code: " + err.code + " message: " + err.message);
     });
 });
 
@@ -57,7 +57,7 @@ app.post("/addnewtodo", function(req, res) {
             res.write(timestampStr);
             res.end();
         }, function onRejected(err) {
-            simpleRespond(res, 500, err.message);
+            simpleRespond(res, err.statusCode, err.message);
         });
     });
 });
@@ -84,7 +84,7 @@ app.post("/tododone", function(req, res) {
             res.write(todoitemStr);
             res.end();
         }, function onRejected(err) {
-            simpleRespond(res, 500, err.message);
+            simpleRespond(res, err.statusCode, err.message);
         });
     });
 });
@@ -111,7 +111,7 @@ app.post("/todowontdo", function(req, res) {
             res.write(todoitemStr);
             res.end();
         }, function onRejected(err) {
-            simpleRespond(res, 500, err.message);
+            simpleRespond(res, err.statusCode, err.message);
         });
     });
 });
@@ -140,7 +140,7 @@ app.post("/todoedit", function(req, res) {
             res.write(todoIdStr);
             res.end();
         }, function onRejected(err) {
-            simpleRespond(res, 500, err.message);
+            simpleRespond(res, err.statusCode, err.message);
         });
     });
 });
@@ -166,7 +166,7 @@ app.post("/tododelete", function(req, res) {
             res.write(todoIdStr);
             res.end();
         }, function onRejected(err) {
-            simpleRespond(res, 500, err.message);
+            simpleRespond(res, err.statusCode, err.message);
         });
     });
 });

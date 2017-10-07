@@ -9,7 +9,7 @@ const And = require("./and.js");
 
 const S3 = require("aws-sdk/clients/s3");
 
-let keys = JSON.parse(fs.readFileSync("aws_keys.json", "utf8"));
+let keys = JSON.parse(fs.readFileSync("aws_keys.json"));
 const s3 = new S3({ apiVersion: "2006-03-01", region: "us-west-1", accessKeyId: keys.key, secretAccessKey: keys.secretKey});
 
 // todo item status
@@ -22,7 +22,7 @@ let TodoRWStatic = {
     _bucketName: "todo-or-not-todo",
     _todoJsonFilename: "todoslist.json",
     _todoTempJsonFilename: "todoslist.json.temp",
-    _localhost: true,
+    _localhost: false,
 };
 
 let todorw = {};
@@ -126,6 +126,7 @@ function _todorw_changeStatus(todosArray, idStr, newStatus) {
     let and = new And(function(fulfill, reject) {
         if (newStatus !== TD_DONE && newStatus !== TD_WONTDO) {
             let err = new Error("Invalid status to change");
+            err.statusCode = 500;
             reject(err);
             return;
         }
@@ -150,6 +151,7 @@ function _todorw_changeStatus(todosArray, idStr, newStatus) {
             fulfill(result);
         } else {
             let err = new Error("No todo item with id " + todoId + " is found.");
+            err.statusCode = 500;
             reject(err);
         }
     });
@@ -215,7 +217,9 @@ todorw.edit = function(todoIdStr, todoStr) {
             todoItem.desc = todoStr;
             return {"todos": todosArray, "todoId": todoIdStr};
         } else {
-            throw new Error("No todo item with id " + todoId + " is found.");
+            let err = new Error("No todo item with id " + todoId + " is found.");
+            err.statusCode = 500;
+            throw err;
         }
     }).then(function onFulfilled(result) {
         let writeAnd = _todorw_write(result.todos, result.todoId);
@@ -233,7 +237,9 @@ todorw.del = function(idStr) {
             todosArray.splice(todoIndex, 1);
             return {"todos": todosArray, "todoId": idStr};
         } else {
-            throw new Error("No todo item with id " + todoId + " is found.");
+            let err = new Error("No todo item with id " + todoId + " is found.");
+            err.statusCode = 500;
+            throw err;
         }
     }).then(function onFulfilled(result) {
         let writeAnd = _todorw_write(result.todos, result.todoId);

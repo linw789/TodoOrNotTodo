@@ -244,11 +244,10 @@ function buildHtml_todoEditTextArea(todoStr) {
     let editDivElem = clone.querySelector("div");
 
     let textAreaElem = editDivElem.querySelector("textarea");
-    const textAreaRowLimit = 12;
+    const minRows = 6;
+    const maxRows = 15;
     let rows = (todoStr.match(/\r?\n/g) || "").length + 1;
-    if (rows > textAreaRowLimit) {
-        rows = textAreaRowLimit;
-    } 
+    rows = (rows > maxRows ? maxRows : rows) < minRows ? minRows : rows;
     textAreaElem.rows = rows;
     textAreaElem.value = todoStr;
 

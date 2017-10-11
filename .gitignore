@@ -12,6 +12,7 @@ npm-debug.log
 app.zip
 credentials.csv
 aws_keys.json
+todo.zip
 
 /bin/
 /obj/

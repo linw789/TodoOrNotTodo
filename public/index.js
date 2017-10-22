@@ -16,14 +16,14 @@ function debugLog(test) {
 function getTodoMetaString(todoItem) {
     let metaText = "priority: " + todoItem["priority"];
 
-    let createDate = new Date(todoItem["st"]);
+    let createDate = new Date(todoItem["startTime"]);
     metaText += " | created: " + createDate.toDateString();
 
     if (todoItem["status"] == TD_DONE) {
-        let doneDate = new Date(todoItem["et"]);
+        let doneDate = new Date(todoItem["endTime"]);
         metaText += " | done: " + doneDate.toDateString();
     } else if (todoItem["status"] == TD_WONTDO) {
-        let abandonDate = new Date(todoItem["et"]);
+        let abandonDate = new Date(todoItem["endTime"]);
         metaText += " | won't do: " + abandonDate.toDateString();
     }
     
@@ -136,8 +136,8 @@ function requestHttp_todoEditOk() {
     }
 
     let todoData = {
-        "st": todoId,
-        "desc": textAreaElem.value,
+        "startTime": todoId,
+        "description": textAreaElem.value,
     };
     let todoDataStr = JSON.stringify(todoData);
 
@@ -181,7 +181,7 @@ function requestHttp_todoDelete() {
 }
 
 function buildHtml_markTodoItemGrey(todoItem) {
-    let todoItemUID = todoItem["st"];
+    let todoItemUID = todoItem["startTime"];
     let todoListItemElem = document.getElementById(todoItemUID);
     if (todoListItemElem !== null) {
         let todoListItemContainerElem = todoListItemElem.children[0];
@@ -219,7 +219,7 @@ function buildHtml_editTodoText(todoId) {
     listItemElem.setAttribute("data-raw-text", newTodoText);
     todoListItemContainerElem.removeChild(todoEditDivElem);
     let todoInfoDivElem = todoListItemContainerElem.querySelector(".todo-info-column");
-    let todoDescTextElem = todoInfoDivElem.querySelector(".todo-desc-text");
+    let todoDescTextElem = todoInfoDivElem.querySelector(".todo-description-text");
     todoDescTextElem.innerHTML = window.showdownMarker.makeHtml(newTodoText);
     todoInfoDivElem.style.display = "block";
 }
@@ -271,9 +271,9 @@ function buildHtml_todoListItem(todoItem) {
     let listLiElem = clone.querySelector("li");
 
     // take the creation UTC timestamp as UID for each to-do-list item
-    listLiElem.id = todoItem.st;
+    listLiElem.id = todoItem.startTime;
     // we want to preserve the original text after it being rendered into marked html
-    listLiElem.setAttribute("data-raw-text", todoItem.desc);
+    listLiElem.setAttribute("data-raw-text", todoItem.description);
 
     let isTodoGrey = (todoItem.status > TD_CREATED);
     let containerDivElem = listLiElem.querySelector(".todo-list-item-container");
@@ -301,7 +301,7 @@ function buildHtml_todoListItem(todoItem) {
     let todoInfoDivElem = listLiElem.querySelector(".todo-info-column");
     
     let todoDescDivElem = todoInfoDivElem.querySelector(".todo-desc-text");
-    todoDescDivElem.innerHTML = window.showdownMarker.makeHtml(todoItem.desc);
+    todoDescDivElem.innerHTML = window.showdownMarker.makeHtml(todoItem.description);
 
     let todoMetaPElem = todoInfoDivElem.querySelector(".todo-meta-text");
     todoMetaPElem.textContent = getTodoMetaString(todoItem); 
@@ -331,7 +331,7 @@ function buildHtml_todosList(todos) {
 
     for (let i = 0; i < todos.length; ++i) {
         let item = todos[i];
-        let todoListItemElem = buildHtml_todoListItem(item)
+        let todoListItemElem = buildHtml_todoListItem(item);
         todoListElem.appendChild(todoListItemElem);
     }
 }
@@ -340,11 +340,11 @@ function buildHtml_addTodoItem(timestamp) {
     let todoTextAreaElem = document.querySelector("#new-todo-textarea");
 
     let todoItem = {
-        "desc" : todoTextAreaElem.value,
+        "description" : todoTextAreaElem.value,
         "status" : TD_CREATED,
         "priority" : 0,
-        "st" : timestamp,
-        "et" : 0
+        "startTime" : timestamp,
+        "endTime" : 0
     };
     let todoListItemElem = buildHtml_todoListItem(todoItem);
 
@@ -363,12 +363,12 @@ function todoSortCompare(a, b) {
     let priorityB = b["priority"];
     let priorityDiff = priorityB - priorityA;
 
-    let stA = a["st"];
-    let stB = b["st"];
+    let stA = a["startTime"];
+    let stB = b["startTime"];
     let stDiff = stA - stB;
 
-    let etA = a["et"];
-    let etB = b["et"];
+    let etA = a["endTime"];
+    let etB = b["endTime"];
     let etDiff = etB - etA;
 
     if (statusDiff === 0) {
@@ -412,7 +412,7 @@ function requestHttp_loadTodosJson() {
     httpReq.addEventListener("error", onHttpRequestError);
     httpReq.addEventListener("abort", onHttpRequestAbort);
 
-    httpReq.open("GET", "/todoslist.json", true);
+    httpReq.open("GET", "/api/todo", true);
     httpReq.send();
 }
 
@@ -421,10 +421,10 @@ window.onload = requestHttp_loadTodosJson;
 function onHttpRequestLoad_addNewTodo() {
     if (this.readyState === 4) {
         if (this.status === 200) {
-            let st = parseInt(this.responseText);
-            if (st === NaN) {
+            let startTime = parseInt(this.responseText);
+            if (startTime === NaN) {
             } else {
-                buildHtml_addTodoItem(st);
+                buildHtml_addTodoItem(startTime);
                 let todoTextAreaElem = document.getElementById("new-todo-textarea");
                 todoTextAreaElem.value = "";
             }
@@ -449,7 +449,7 @@ function requestHttp_addNewTodo(evt) {
     httpReq.addEventListener("error", onHttpRequestError);
     httpReq.addEventListener("abort", onHttpRequestAbort);
 
-    httpReq.open("POST", "/addnewtodo", true);
+    httpReq.open("POST", "/api/todo", true);
 
     httpReq.setRequestHeader("Content-Type", "text/plain; charset=utf-8");
     httpReq.send(todoTextAreaElem.value);

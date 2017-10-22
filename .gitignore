@@ -5,6 +5,7 @@
 *.test.json
 
 .DS_Store
+.idea
 
 todoslist.json
 todoslist.json.temp
@@ -13,6 +14,8 @@ app.zip
 credentials.csv
 aws_keys.json
 todo.zip
+package-lock.json
+yarn.lock
 
 /bin/
 /obj/

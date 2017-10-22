@@ -1,11 +1,19 @@
 "use strict";
 
-const fs = require("fs");
 const express = require("express");
-const todorw = require("./todorw.js");
+const fs = require("fs");
+const mongoose = require('mongoose');
+const Item = require('./model/item');
 
-let app = express();
+// todo item status
+const TD_CREATED = 0;
+const TD_DONE = 1;
+const TD_WONTDO = 2;
+
+const app = express();
 app.use(express.static("public"));
+
+mongoose.connect('mongodb://garyzhan:Yuwe1Zh2nm@ds127105.mlab.com:27105/todoornottodo');
 
 function simpleRespond(res, errCode, errMessage) {
     res.writeHead(errCode);
@@ -24,18 +32,16 @@ app.get("/favicon.ico", function(req, res) {
     simpleRespond(res, 404, "No Favorite Icon.");
 });
 
-app.get("/todoslist.json", function(req, res) {
-    let and = todorw.readTodosList();
-    and.done(function onFulfilled(todosStr) {
-        res.writeHead(200, {'Content-Type': 'application/json'});
-        res.write(todosStr);
-        res.end();
-    }, function onRejected(err) {
-        simpleRespond(res, err.statusCode, "error code: " + err.code + " message: " + err.message);
+app.get('/api/todo', (req, res) => {
+    Item.find((err, items) => {
+        if (err) {
+            res.send(err);
+        }
+        res.json(items);
     });
 });
 
-app.post("/addnewtodo", function(req, res) {
+app.post("/api/todo", function(req, res) {
     let reqbody = [];
     req.on("data", (chunk) => {
         // TODO: Test body length for overflow.
@@ -49,15 +55,18 @@ app.post("/addnewtodo", function(req, res) {
             return;
         }
 
-        let and = todorw.add(reqbody);
-        and.done(function onFulfilled(timestamp) {
-            res.statusCode = 200;
-            res.setHeader("Content-Type", "text/plain");
-            let timestampStr = timestamp.toString();
-            res.write(timestampStr);
-            res.end();
-        }, function onRejected(err) {
-            simpleRespond(res, err.statusCode, err.message);
+        const item = new Item();
+        item.description = reqbody;
+        item.status = TD_CREATED;
+        item.priority = 0;
+        item.startTime = Date.now();
+        item.endTime = 0;
+
+        item.save((err) => {
+            if (err) {
+                res.send(err);
+            }
+            res.send(item.startTime.toString());
         });
     });
 });
